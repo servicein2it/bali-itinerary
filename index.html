@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bali Group Trip Presentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ffffff;
+            --accent: #ff7675;
+            --bg-dark: #000000;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --text-muted: #e0e0e0;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--primary);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out, filter 0.8s;
+            transform: scale(1.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            z-index: 2;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 50px 60px;
+            max-width: 1100px;
+            width: 85%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.4);
+            position: relative;
+        }
+
+        .glass-panel::-webkit-scrollbar { width: 6px; }
+        .glass-panel::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .glass-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .slide-title-panel {
+            text-align: center;
+            padding: 80px 60px;
+        }
+
+        h1 { font-size: 5rem; margin: 0 0 5px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; text-shadow: 2px 4px 10px rgba(0,0,0,0.5); line-height: 1.1; }
+        h2 { font-size: 3rem; margin: 0 0 25px 0; color: var(--accent); font-weight: 600; text-shadow: 1px 2px 5px rgba(0,0,0,0.5); }
+        h3 { font-size: 1.8rem; margin: 20px 0 10px 0; color: #fff; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;}
+        h4 { font-size: 1.3rem; margin: 10px 0; color: var(--accent); font-weight: 600; }
+        
+        p, li { font-size: 1.15rem; line-height: 1.7; color: var(--text-muted); font-weight: 300; }
+        
+        .thai-text { font-size: 0.85em; opacity: 0.7; display: block; margin-top: -2px; margin-bottom: 10px; font-weight: 300; color: #bdc3c7;}
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+        .photo-card {
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .photo-card:hover { transform: translateY(-10px) scale(1.02); }
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+        .photo-card:hover img { transform: scale(1.1); }
+        .photo-card .overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+            padding: 30px 20px 20px; box-sizing: border-box;
+        }
+        .photo-card h4 { margin: 0; color: #fff; font-size: 1.3rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+
+        ul { list-style: none; padding: 0; margin: 0; }
+        ul li { margin-bottom: 15px; padding-left: 35px; position: relative; }
+        ul li i { position: absolute; left: 0; top: 6px; color: var(--accent); font-size: 1.1em; }
+
+        .controls {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 15px 40px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15);
+            display: flex; gap: 40px; align-items: center; z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .controls button {
+            background: transparent; color: white; border: none; font-size: 1.1rem;
+            cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 12px;
+            font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;
+            padding: 10px 20px; border-radius: 30px;
+        }
+        .controls button:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: var(--accent); }
+        .controls button:disabled { color: rgba(255,255,255,0.2); cursor: not-allowed; }
+        .slide-counter { font-size: 1.2rem; font-weight: 600; letter-spacing: 3px; color: #fff; }
+
+        .tag { display: inline-block; background: rgba(255,118,117,0.2); color: #ff9e9e; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; text-transform: uppercase; margin-right: 10px; border: 1px solid rgba(255,118,117,0.3); letter-spacing: 1px; font-weight: 600; }
+        
+        .food-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .food-item { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s; }
+        .food-item:hover { background: rgba(255,255,255,0.1); }
+        .food-item h4 { margin: 0 0 8px 0; color: #fff; display: flex; align-items: center; gap: 10px; }
+
+        .tip-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 0 16px 16px 0;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        .tip-card:hover { background: rgba(255, 255, 255, 0.1); }
+        .tip-card h4 { margin: 0 0 10px 0; color: #fff; font-size: 1.3rem; }
+        .tip-card p { margin: 0 0 5px 0; font-size: 1.05rem; }
+
+        .tip-card-v2 {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .tip-card-v2:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); transform: translateY(-5px); }
+        .tip-icon { font-size: 3rem; color: var(--accent); margin-bottom: 20px; display: block; }
+        .tip-card-v2 h4 { margin: 0 0 10px 0; color: #fff; font-size: 1.4rem; }
+
+        .progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--accent); z-index: 100; transition: width 0.4s ease; box-shadow: 0 0 10px var(--accent); }
+
+        /* Bento Grid styles */
+        .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 180px; gap: 20px; margin-top: 20px; }
+        .bento-item { border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 15px 30px rgba(0,0,0,0.4); transition: transform 0.4s ease; background: #222; }
+        .bento-item:hover { transform: scale(1.03); z-index: 10; }
+        .bento-item img { width: 100%; height: 100%; object-fit: cover; }
+        .bento-item .overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); padding: 20px; box-sizing: border-box; }
+        .bento-item h4 { margin: 0; color: #fff; font-size: 1.2rem; }
+        .bento-large { grid-column: span 2; grid-row: span 2; }
+        .bento-wide { grid-column: span 2; grid-row: span 1; }
+        .bento-tall { grid-column: span 1; grid-row: span 2; }
+        .bento-small { grid-column: span 1; grid-row: span 1; }
+
+        /* Food Gallery styles */
+        .food-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .food-card { border-radius: 16px; overflow: hidden; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .food-card img { width: 100%; height: 180px; object-fit: cover; background: #222; }
+        .food-card-content { padding: 15px; }
+        .food-card-content h4 { margin: 0 0 5px 0; color: #fff; }
+
+        /* Insurance Cards */
+        .insurance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .insurance-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 25px; text-align: center; transition: all 0.3s; }
+        .insurance-card:hover { background: rgba(255,255,255,0.12); transform: translateY(-5px); border-color: var(--accent); }
+        .insurance-logo { width: 150px; height: 70px; object-fit: contain; background: white; padding: 10px; border-radius: 8px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
+        .insurance-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .insurance-card h4 { color: var(--accent); font-size: 1.5rem; margin: 10px 0; }
+        .insurance-card p { font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5; }
+        
+        .emergency-number { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 118, 117, 0.2); border: 1px solid rgba(255, 118, 117, 0.5); padding: 15px 25px; border-radius: 12px; margin-bottom: 15px; }
+        .emergency-number .label { font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .emergency-number .number { font-size: 2.2rem; font-weight: 900; color: #ff7675; text-shadow: 0 0 15px rgba(255, 118, 117, 0.6); letter-spacing: 2px; }
+
+        .map-btn { display: inline-block; background: #4285F4; color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 0.95rem; font-weight: 600; margin-top: 15px; transition: background 0.3s; box-shadow: 0 4px 10px rgba(66, 133, 244, 0.3); }
+        .map-btn:hover { background: #3367D6; }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+
+    <div class="presentation-container">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <!-- Background Fallback Image -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-image: url('https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;"></div>
+            
+            <!-- YouTube Background Video -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none;">
+                <iframe src="https://www.youtube.com/embed/YB8BX0Pt1Lk?autoplay=1&mute=1&controls=0&loop=1&playlist=YB8BX0Pt1Lk&showinfo=0&rel=0&modestbranding=1&playsinline=1" 
+                        style="width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" 
+                        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+
+            <div class="glass-panel slide-title-panel" style="z-index: 1;">
+                <h1>BALI GROUP TRIP</h1>
+                <h2>Island of the Gods <br><span class="thai-text" style="font-size: 0.4em; margin-top: 10px;">ทริปกลุ่มบาหลี: เกาะแห่งเทพเจ้า</span></h2>
+                <p style="font-size: 1.5rem; color: #fff;"><strong>Date:</strong> 30 May – 3 Jun 2026</p>
+                <p style="font-size: 1.5rem; color: #fff;"><strong>Duration:</strong> 5 Days 4 Nights</p>
+                <p style="font-size: 1.5rem; color: #fff;"><strong>Travelers:</strong> 19 Guests</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1559628233-eb1b1a45564b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel">
+                <h2>Trip Overview <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">ภาพรวมทริป</span></h2>
+                <div class="grid-3" style="margin-top: 40px;">
+                    <div class="photo-card" style="aspect-ratio: 1;">
+                        <img src="https://images.unsplash.com/photo-1570214476695-19bd467e6f7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" onerror="this.src='https://images.unsplash.com/photo-1536152470836-b943b246224c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Canggu">
+                        <div class="overlay">
+                            <h4>Canggu</h4>
+                            <span class="thai-text" style="color: #ccc; margin-top: 5px;">ชายทะเลฝั่งใต้ & บีชคลับ</span>
+                        </div>
+                    </div>
+                    <div class="photo-card" style="aspect-ratio: 1;">
+                        <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" onerror="this.src='https://images.unsplash.com/photo-1552831343-6d0fa73499ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Ubud">
+                        <div class="overlay">
+                            <h4>Ubud</h4>
+                            <span class="thai-text" style="color: #ccc; margin-top: 5px;">ใจกลางวัฒนธรรม & ธรรมชาติ</span>
+                        </div>
+                    </div>
+                    <div class="photo-card" style="aspect-ratio: 1;">
+                        <img src="https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Nusa Penida">
+                        <div class="overlay">
+                            <h4>Nusa Penida</h4>
+                            <span class="thai-text" style="color: #ccc; margin-top: 5px;">ทริปเกาะหน้าผาไอคอนิก</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Flights -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1000px;">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/AirAsia_New_Logo.svg/1280px-AirAsia_New_Logo.svg.png" alt="AirAsia Logo" style="height: 60px; object-fit: contain;">
+                    <h2 style="margin-top: 15px;">Flight Details <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">รายละเอียดเที่ยวบิน</span></h2>
+                </div>
+                
+                <div class="tip-card" style="border-color: #e74c3c; background: rgba(231, 76, 60, 0.15); margin-bottom: 30px;">
+                    <h4 style="color: #e74c3c;"><i class="fa-solid fa-plane-circle-check"></i> Fly-Thru Connection</h4>
+                    <p style="color: #fff;">Our flights connect seamlessly in Kuala Lumpur (KUL). Your baggage will be checked all the way to Bali (DPS). Note: Bali & KUL are 1 hour ahead of Thailand.</p>
+                    <span class="thai-text">บินแบบต่อเครื่อง (Fly-Thru) ที่มาเลเซีย กระเป๋าเช็คอินตรงถึงบาหลีเลย (เวลาบาหลีเร็วกว่าไทย 1 ชม.)</span>
+                </div>
+
+                <div class="grid-2">
+                    <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px;">
+                        <h3><i class="fa-solid fa-plane-departure" style="color: var(--accent);"></i> Departure (30 May)</h3>
+                        <ul style="margin-top: 15px;">
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-ticket"></i> <strong>DMK to KUL:</strong> AK 881 <br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Boarding: 09:25 | Departs: 10:05 (Thai Time)</span><br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Arrives KUL: 13:20 (KUL Time)</span>
+                            </li>
+                            <li><i class="fa-solid fa-ticket"></i> <strong>KUL to DPS:</strong> AK 378 <br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Boarding: 15:25 | Departs: 16:05 (KUL Time)</span><br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Arrives DPS: 19:15 (Bali Time)</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px;">
+                        <h3><i class="fa-solid fa-plane-arrival" style="color: var(--accent);"></i> Return (3 Jun)</h3>
+                        <ul style="margin-top: 15px;">
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-ticket"></i> <strong>DPS to KUL:</strong> AK 365 <br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Boarding: 12:20 | Departs: 13:00 (Bali Time)</span><br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Arrives KUL: 16:00 (KUL Time)</span>
+                            </li>
+                            <li><i class="fa-solid fa-ticket"></i> <strong>KUL to DMK:</strong> AK 896 <br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Boarding: 19:00 | Departs: 19:40 (KUL Time)</span><br>
+                                <span style="font-size: 0.95rem; color: #ccc;">Arrives DMK: 20:50 (Thai Time)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Immigration & Checklist -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1050px;">
+                <h2>Pre-Departure & Arrival <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">ขั้นตอนก่อนเดินทางและตม.</span></h2>
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px; border-left: 4px solid var(--accent);">
+                        <h3 style="color: var(--accent); margin-top: 0; border-bottom: none;"><i class="fa-solid fa-clipboard-check"></i> Pre-Departure Checklist</h3>
+                        <ul style="margin-top: 15px; font-size: 1.1rem;">
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-passport"></i> <strong>Passport Validity:</strong> Must be valid for at least 6 months from arrival.<br><span class="thai-text">พาสปอร์ตต้องมีอายุเหลือมากกว่า 6 เดือน</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-money-check-dollar"></i> <strong>Tourist Levy (Tax):</strong> Pay online (150k IDR) before arrival.<br><span class="thai-text">จ่ายภาษีนักท่องเที่ยวออนไลน์ล่วงหน้า</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-qrcode"></i> <strong>Customs Declaration (ECD):</strong> Fill online up to 3 days before flight.<br><span class="thai-text">กรอกใบศุลกากรออนไลน์ (ได้ 3 วันล่วงหน้า) เพื่อเอา QR Code</span></li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px; border-left: 4px solid #4cd137;">
+                        <h3 style="color: #4cd137; margin-top: 0; border-bottom: none;"><i class="fa-solid fa-plane-arrival"></i> Bali Arrival Steps</h3>
+                        <ul style="margin-top: 15px; font-size: 1.1rem;">
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-1"></i> <strong>Immigration (Auto-gate):</strong> Thai passports are Visa-Free. Scan at autogates.<br><span class="thai-text">คนไทยไม่ต้องขอวีซ่า สแกนพาสปอร์ตเข้า Auto-gate ได้เลย</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-2"></i> <strong>Baggage Claim:</strong> Collect all bags.<br><span class="thai-text">รอรับกระเป๋าเดินทาง</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-3"></i> <strong>Customs Scan:</strong> Show your ECD QR Code to exit.<br><span class="thai-text">สแกน QR Code ศุลกากรก่อนออกจากสนามบิน</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4.5: Local Greetings -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1050px;">
+                <h2>Basic Local Phrases <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">คำศัพท์พื้นฐานที่ควรรู้</span></h2>
+                <p style="text-align: center; font-size: 1.15rem; margin-bottom: 30px; color: #fff;">Balinese appreciate it when you try to speak their language! (Indonesian is widely spoken)</p>
+                
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px; border-left: 4px solid var(--accent);">
+                        <h3 style="color: var(--accent); margin-top: 0; border-bottom: none;"><i class="fa-solid fa-hand-sparkles"></i> Greetings & Politeness</h3>
+                        <ul style="margin-top: 15px; font-size: 1.1rem;">
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-comment"></i> <strong>Hello:</strong> Om Swastiastu <em>(Ohm Swas-tee-as-too)</em><br><span class="thai-text">สวัสดี (ภาษาบาหลีแท้ๆ คนท้องถิ่นจะประทับใจมาก) / หรือใช้ <strong>Halo</strong> (ฮัลโล)</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-hands-praying"></i> <strong>Thank you:</strong> Terima Kasih <em>(Teh-ree-mah Kah-see)</em><br><span class="thai-text">ขอบคุณ (อินโดนีเซีย) / <strong>Suksma</strong> (ซุก-สมา - ภาษาบาหลี)</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-face-frown"></i> <strong>Sorry / Excuse me:</strong> Maaf / Permisi <em>(Mah-af / Per-mee-see)</em><br><span class="thai-text">ขอโทษ / ขอทางหน่อย (เช่น เวลาเดินผ่านคนเยอะๆ)</span></li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px; border-left: 4px solid #4cd137;">
+                        <h3 style="color: #4cd137; margin-top: 0; border-bottom: none;"><i class="fa-solid fa-cart-shopping"></i> Shopping & Dining</h3>
+                        <ul style="margin-top: 15px; font-size: 1.1rem;">
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-money-bill-wave"></i> <strong>How much?:</strong> Berapa? <em>(Beh-rah-pah)</em><br><span class="thai-text">ราคาเท่าไหร่? (ใช้ตอนซื้อของหรือต่อราคา)</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-utensils"></i> <strong>Delicious:</strong> Enak <em>(Eh-nak)</em><br><span class="thai-text">อร่อยมาก! (ใช้พูดชมร้านอาหาร)</span></li>
+                            <li style="margin-bottom: 20px;"><i class="fa-solid fa-check-double"></i> <strong>Yes / No:</strong> Ya / Tidak <em>(Yah / Tee-dak)</em><br><span class="thai-text">ใช่ / ไม่ใช่ (<strong>Tidak</strong> มักใช้ปฏิเสธเวลาคนมาเสนอขายของ)</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Accommodations -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1570214476695-19bd467e6f7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel">
+                <h2>Accommodations <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">ที่พัก</span></h2>
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div class="photo-card" style="aspect-ratio: 4/3;">
+                        <img src="https://images.unsplash.com/photo-1570214476695-19bd467e6f7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Canggu Villa">
+                        <div class="overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);">
+                            <h4>🏖️ Canggu Villa (Day 1-2)</h4>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #ccc;">Host: Anna Atsalaki | 9 Beds · 16 Guests</p>
+                            <a href="https://maps.google.com/?q=Canggu+Bali" target="_blank" class="map-btn"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
+                        </div>
+                    </div>
+                    <div class="photo-card" style="aspect-ratio: 4/3;">
+                        <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Ubud Villa">
+                        <div class="overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);">
+                            <h4>🌴 Ubud Villa (Day 3-5)</h4>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #ccc;">Host: Mohamed Messaoudine | 24 Beds · 16 Guests</p>
+                            <a href="https://maps.google.com/?q=Ubud+Bali" target="_blank" class="map-btn"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Day 1 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1536152470836-b943b246224c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 900px;">
+                <h2>Day 1: Arrival <span class="tag">30 May</span> <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">วันแรก: เดินทางถึงบาหลี</span></h2>
+                <ul style="font-size: 1.3rem; margin-top: 30px;">
+                    <li style="margin-bottom: 25px;"><i class="fa-solid fa-plane-arrival" style="font-size: 1.5rem; top: 0;"></i> <strong>Evening:</strong> Arrive safely at DPS Airport.<br><span class="thai-text" style="font-size: 0.8em; margin-top: 5px;">ถึงสนามบินเดนปาซาร์ รับกระเป๋าเดินทาง</span></li>
+                    <li style="margin-bottom: 25px;"><i class="fa-solid fa-van-shuttle" style="font-size: 1.5rem; top: 0;"></i> <strong>Transfer:</strong> Private MiniBus to Canggu Villa.<br><span class="thai-text" style="font-size: 0.8em; margin-top: 5px;">ขึ้นรถมินิบัสส่วนตัวเดินทางเข้าที่พักโซน Canggu</span></li>
+                    <li style="margin-bottom: 25px;"><i class="fa-solid fa-utensils" style="font-size: 1.5rem; top: 0;"></i> <strong>Dinner:</strong> Light dinner near the villa.<br><span class="thai-text" style="font-size: 0.8em; margin-top: 5px;">ทานมื้อค่ำเบาๆ บริเวณใกล้เคียงที่พัก พักผ่อนตามอัธยาศัย</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Day 2 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1544644181-1484b3f6c3b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1000px;">
+                <h2>Day 2: Beach Club Day! <span class="tag">31 May</span> <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">วันที่สอง: ทะเลและบีชคลับ</span></h2>
+                <div class="grid-2" style="margin-top: 30px; align-items: center;">
+                    <ul style="font-size: 1.2rem;">
+                        <li style="margin-bottom: 20px;"><i class="fa-solid fa-sun"></i> <strong>Afternoon:</strong> Sundays Beach Club. Kayaking & Snorkeling (Water Activity).<br><span class="thai-text" style="font-size: 0.85em;">พายเรือคายัค ดำน้ำใสๆ พักผ่อนที่ Sundays</span></li>
+                        <li style="margin-bottom: 20px;"><i class="fa-solid fa-om"></i> <strong>Sunset:</strong> Uluwatu Temple & Kecak Fire Dance. Padang Padang Beach.<br><span class="thai-text" style="font-size: 0.85em;">ชมวัดอูลูวาตู, ระบำไฟ, และหาด Padang</span></li>
+                        <li style="margin-bottom: 20px;"><i class="fa-solid fa-martini-glass"></i> <strong>Night:</strong> FINNS Beach Club or Jimbaran Seafood BBQ.<br><span class="thai-text" style="font-size: 0.85em;">ปาร์ตี้บีชคลับ หรือทานซีฟู้ดริมหาดจิมบารัน</span></li>
+                    </ul>
+                    <div class="photo-card" style="aspect-ratio: 1;">
+                        <img src="https://images.unsplash.com/photo-1536152470836-b943b246224c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Uluwatu">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Day 3 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1552831343-6d0fa73499ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1000px;">
+                <h2>Day 3: Heart of Bali <span class="tag">1 Jun</span> <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">วันที่สาม: วัฒนธรรมอูบุด</span></h2>
+                <div class="grid-2" style="margin-top: 30px; align-items: center;">
+                    <div class="photo-card" style="aspect-ratio: 1;">
+                        <img src="https://images.unsplash.com/photo-1559628233-eb1b1a45564b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Rice Terrace">
+                    </div>
+                    <ul style="font-size: 1.2rem;">
+                        <li style="margin-bottom: 20px;"><i class="fa-solid fa-droplet"></i> <strong>Morning:</strong> Pura Tirta Empul (Melukat Ritual).<br><span class="thai-text" style="font-size: 0.85em;">พิธีชำระล้างจิตใจที่วัดน้ำพุศักดิ์สิทธิ์</span></li>
+                        <li style="margin-bottom: 20px;"><i class="fa-solid fa-leaf"></i> <strong>Afternoon:</strong> Tegallalang Rice Terrace & Bali Swing @ Alas Harum.<br><span class="thai-text" style="font-size: 0.85em;">ถ่ายรูปนาขั้นบันได และเล่นบาหลีสวิง</span></li>
+                        <li style="margin-bottom: 20px;"><i class="fa-solid fa-spa"></i> <strong>Relax:</strong> Traditional Balinese Spa (Karsa / Taksu).<br><span class="thai-text" style="font-size: 0.85em;">นวดผ่อนคลายสปาบาหลีแบบดั้งเดิม</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Day 4 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1000px;">
+                <h2>Day 4: Nusa Penida <span class="tag">2 Jun</span> <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">วันที่สี่: ทริปเกาะหน้าผา</span></h2>
+                <div class="grid-2" style="align-items: center; margin-top: 20px;">
+                    <div>
+                        <ul style="font-size: 1.15rem;">
+                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-ship"></i> <strong>Transport:</strong> Fast Boat from Sanur (40 mins).<br><span class="thai-text">นั่งเรือเร็วข้ามเกาะจากท่าเรือ Sanur</span></li>
+                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-camera"></i> <strong>Kelingking Beach:</strong> The famous T-Rex cliff viewpoint.<br><span class="thai-text">จุดชมวิวหน้าผาไดโนเสาร์ #1 IG Spot</span></li>
+                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-water"></i> <strong>Nature Wonders:</strong> Broken Beach & Angel's Billabong.<br><span class="thai-text">หน้าผาโดนัทและสระมรกตธรรมชาติ</span></li>
+                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-fish-fins"></i> <strong>Activity:</strong> Crystal Bay Snorkeling.<br><span class="thai-text">ดำน้ำดูปะการังและปลาเขตร้อน</span></li>
+                        </ul>
+                    </div>
+                    <div class="photo-card" style="aspect-ratio: 4/3;">
+                        <img src="https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Penida">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Day 5 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 900px;">
+                <h2>Day 5: Departure <span class="tag">3 Jun</span> <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">วันสุดท้าย: เดินทางกลับ</span></h2>
+                <ul style="font-size: 1.3rem; margin-top: 30px;">
+                    <li style="margin-bottom: 25px;"><i class="fa-solid fa-bag-shopping" style="font-size: 1.5rem; top: 0;"></i> <strong>Morning:</strong> Ubud Art Market & Sacred Monkey Forest.<br><span class="thai-text" style="font-size: 0.8em; margin-top: 5px;">ซื้อของฝากงานคราฟต์ และแวะป่าลิง</span></li>
+                    <li style="margin-bottom: 25px;"><i class="fa-solid fa-utensils" style="font-size: 1.5rem; top: 0;"></i> <strong>Lunch:</strong> Clear Café, Zest, or Locavore NXT.<br><span class="thai-text" style="font-size: 0.8em; margin-top: 5px;">ทานมื้อเที่ยงที่คาเฟ่หรือไฟน์ไดน์นิ่งในอูบุด</span></li>
+                    <li style="margin-bottom: 25px;"><i class="fa-solid fa-plane-up" style="font-size: 1.5rem; top: 0;"></i> <strong>Afternoon:</strong> Airport Transfer (AK 365 @ 13:00).<br><span class="thai-text" style="font-size: 0.8em; margin-top: 5px;">เดินทางไปสนามบินเตรียมบินกลับไทย</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: Top 10 IG Spots List -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel">
+                <h2>Top 10 IG & Photo Spots <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">จุดถ่ายรูปที่ห้ามพลาด</span></h2>
+                <div class="grid-2">
+                    <ul style="column-count: 1;">
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Kelingking Beach</strong> (Nusa Penida) - T-Rex Cliff</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Tegallalang Rice Terrace</strong> - Iconic green steps</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Bali Swing</strong> @ Alas Harum</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Handara Gate</strong> (If time permits)</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Pura Tirta Empul</strong> - White robes in holy water</li>
+                    </ul>
+                    <ul style="column-count: 1;">
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Sundays Beach Club</strong> Cable Car & Cliff</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>La Brisa Bali</strong> - Rustic sunset vibes</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Tanah Barak</strong> Pink Wall (Canggu)</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Broken Beach Arch</strong> (Nusa Penida)</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <strong>Uluwatu Temple</strong> at golden hour sunset</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: IG Spots Bento Gallery -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1200px;">
+                <h2>IG Spots Gallery <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">ตัวอย่างจุดถ่ายรูป (Bento View)</span></h2>
+                <div class="bento-grid">
+                    <div class="bento-item bento-large">
+                        <img src="https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="T-Rex">
+                        <div class="overlay"><h4>Kelingking Beach</h4></div>
+                    </div>
+                    <div class="bento-item bento-wide">
+                        <img src="https://images.unsplash.com/photo-1559628233-eb1b1a45564b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Rice Terrace">
+                        <div class="overlay"><h4>Tegallalang Rice Terrace</h4></div>
+                    </div>
+                    <div class="bento-item bento-tall">
+                        <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Swing">
+                        <div class="overlay"><h4>Bali Swing</h4></div>
+                    </div>
+                    <div class="bento-item bento-small">
+                        <img src="https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Temple">
+                        <div class="overlay"><h4>Gates of Heaven</h4></div>
+                    </div>
+                    <div class="bento-item bento-small">
+                        <img src="https://images.unsplash.com/photo-1536152470836-b943b246224c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cliff">
+                        <div class="overlay"><h4>Uluwatu Sunset</h4></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Food List -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1604085792782-8d92f276d7d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel">
+                <h2>Must-Try Local Food <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">อาหารท้องถิ่นที่ต้องลอง</span></h2>
+                <div class="food-list">
+                    <div class="food-item">
+                        <h4><i class="fa-solid fa-fire-burner" style="color: var(--accent);"></i> Babi Guling (Ibu Oka)</h4>
+                        <span class="thai-text">หมูหันยัดสมุนไพร ร้านระดับตำนาน</span>
+                    </div>
+                    <div class="food-item">
+                        <h4><i class="fa-solid fa-drumstick-bite" style="color: var(--accent);"></i> Bebek Betutu / Bengil</h4>
+                        <span class="thai-text">เป็ดหมักเครื่องเทศอบ 12 ชม. / เป็ดทอดกรอบ</span>
+                    </div>
+                    <div class="food-item">
+                        <h4><i class="fa-solid fa-bowl-rice" style="color: var(--accent);"></i> Nasi Campur Bali</h4>
+                        <span class="thai-text">ข้าวราดแกงพื้นเมือง (เนื้อ ผัก สะเต๊ะ)</span>
+                    </div>
+                    <div class="food-item">
+                        <h4><i class="fa-solid fa-fish" style="color: var(--accent);"></i> Sate Lilit</h4>
+                        <span class="thai-text">สะเต๊ะปลา/ไก่พันรอบแท่งตะไคร้ย่างถ่าน</span>
+                    </div>
+                    <div class="food-item">
+                        <h4><i class="fa-solid fa-shrimp" style="color: var(--accent);"></i> Jimbaran BBQ Seafood</h4>
+                        <span class="thai-text">ซีฟู้ดย่างทานบนโต๊ะริมทราย (Menega/Lia Cafe)</span>
+                    </div>
+                    <div class="food-item">
+                        <h4><i class="fa-solid fa-mug-hot" style="color: var(--accent);"></i> Kopi Luwak</h4>
+                        <span class="thai-text">กาแฟขี้ชะมดที่แพงที่สุดในโลก</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Food Gallery -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1604085792782-8d92f276d7d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1200px;">
+                <h2>Local Food Gallery <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">หน้าตาอาหารของจริง</span></h2>
+                <div class="food-gallery">
+                    <div class="food-card">
+                        <img src="images/babi_guling.png" alt="Babi Guling">
+                        <div class="food-card-content">
+                            <h4>Babi Guling</h4><span class="thai-text">หมูหันยัดสมุนไพร</span>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="images/bebek_betutu.png" alt="Bebek Betutu">
+                        <div class="food-card-content">
+                            <h4>Bebek Betutu</h4><span class="thai-text">เป็ดอบเครื่องเทศ</span>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="images/nasi_campur.png" alt="Nasi Campur">
+                        <div class="food-card-content">
+                            <h4>Nasi Campur Bali</h4><span class="thai-text">ข้าวราดแกงพื้นเมือง</span>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="images/sate_lilit.png" alt="Sate Lilit">
+                        <div class="food-card-content">
+                            <h4>Sate Lilit</h4><span class="thai-text">สะเต๊ะปลาพันตะไคร้</span>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="images/jimbaran_bbq.png" alt="Jimbaran BBQ">
+                        <div class="food-card-content">
+                            <h4>Jimbaran BBQ</h4><span class="thai-text">ซีฟู้ดย่างริมหาด</span>
+                        </div>
+                    </div>
+                    <div class="food-card">
+                        <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Kopi Luwak">
+                        <div class="food-card-content">
+                            <h4>Kopi Luwak</h4><span class="thai-text">กาแฟขี้ชะมด</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Tips Part 1 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1200px;">
+                <h2>Tips for Group of 19 (Part 1) <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">คำแนะนำสำหรับกรุ๊ปใหญ่ (การเตรียมตัว)</span></h2>
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-users tip-icon"></i>
+                        <h4>Divide & Conquer</h4>
+                        <p>Split into 2-3 sub-groups (6-7 people) with a leader for easier headcounts.</p>
+                        <span class="thai-text" style="margin-top: 10px;">แบ่งเป็น 2-3 กลุ่มย่อย (กลุ่มละ 6-7 คน) พร้อมหัวหน้ากลุ่ม เพื่อง่ายต่อการเช็คยอดคน</span>
+                    </div>
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-location-crosshairs tip-icon"></i>
+                        <h4>Live Tracking</h4>
+                        <p>Create a LINE/WhatsApp group and share live locations constantly.</p>
+                        <span class="thai-text" style="margin-top: 10px;">สร้างกลุ่ม LINE/WhatsApp และแชร์โลเคชั่นแบบเรียลไทม์ (Live Location) เสมอ</span>
+                    </div>
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-briefcase-medical tip-icon"></i>
+                        <h4>Central Supplies</h4>
+                        <p>Designate someone to carry power banks, first-aid kit, and meds.</p>
+                        <span class="thai-text" style="margin-top: 10px;">ตั้งคนดูแลของกองกลาง เช่น พาวเวอร์แบงค์ ชุดปฐมพยาบาล ยาแก้ท้องเสีย และพาราฯ</span>
+                    </div>
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-camera-retro tip-icon"></i>
+                        <h4>Baggage Photos</h4>
+                        <p>Photograph all luggage before departure to prevent mix-ups or lost bags.</p>
+                        <span class="thai-text" style="margin-top: 10px;">ถ่ายรูปกระเป๋าเดินทางทุกคนก่อนออกเดินทาง เพื่อป้องกันการสลับหรือสูญหาย</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Tips Part 2 -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1200px;">
+                <h2>Tips for Group of 19 (Part 2) <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">คำแนะนำสำหรับกรุ๊ปใหญ่ (หน้างาน)</span></h2>
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-utensils tip-icon"></i>
+                        <h4>Pre-book Everything</h4>
+                        <p>Book restaurants and beach clubs well in advance (popular places fill up fast).</p>
+                        <span class="thai-text" style="margin-top: 10px;">จองร้านอาหารและบีชคลับล่วงหน้า (สถานที่ยอดฮิตมักจะเต็มเร็วมาก ไม่รับ Walk-in)</span>
+                    </div>
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-clock tip-icon"></i>
+                        <h4>Buffer Time</h4>
+                        <p>Set meeting times 15-30 minutes earlier than the actual required time.</p>
+                        <span class="thai-text" style="margin-top: 10px;">นัดหมายเวลาล่วงหน้า 15-30 นาทีจากเวลาที่ต้องไปถึงจริงเสมอ เพื่อเผื่อเวลาคนมาสาย</span>
+                    </div>
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-images tip-icon"></i>
+                        <h4>Google Photos</h4>
+                        <p>Create a shared album so everyone gets all the photos after the trip.</p>
+                        <span class="thai-text" style="margin-top: 10px;">สร้างอัลบั้ม Google Photos ที่แชร์ร่วมกัน เพื่อให้ทุกคนได้รูปครบหลังจบทริป</span>
+                    </div>
+                    <div class="tip-card-v2">
+                        <i class="fa-solid fa-thumbtack tip-icon"></i>
+                        <h4>First Arriver Rule</h4>
+                        <p>The first person to reach a destination drops a pin in the group chat.</p>
+                        <span class="thai-text" style="margin-top: 10px;">กฎคนแรกถึงก่อน: คนแรกที่ถึงจุดหมายให้ส่งพินตำแหน่ง (Pin) ลงในแชทกลุ่มทันที</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Transport & Highlight -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1100px;">
+                <h2 style="color: #ffb8b8;"><i class="fa-solid fa-van-shuttle"></i> Transport & Connectivity <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">การเดินทางและการสื่อสาร</span></h2>
+                
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div class="photo-card" style="aspect-ratio: auto; padding-bottom: 25px;">
+                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" style="height: 220px; border-radius: 16px 16px 0 0;" alt="Sim Card">
+                        <div style="padding: 25px;">
+                            <h3 style="margin-top: 0; color: var(--accent);"><i class="fa-solid fa-sim-card"></i> Connectivity</h3>
+                            <ul style="font-size: 1.1rem;">
+                                <li><strong>eSIM Recommended:</strong> Airalo, Holafly, Jetpac.</li>
+                                <li>Keeps your Thai number active. <br><span class="thai-text" style="margin-top: 5px;">ซื้อผ่านแอปได้เลย เก็บเบอร์ไทยไว้รับ SMS/สายด่วนได้</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="photo-card" style="aspect-ratio: auto; padding-bottom: 25px;">
+                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" style="height: 220px; border-radius: 16px 16px 0 0;" alt="Bus">
+                        <div style="padding: 25px;">
+                            <h3 style="margin-top: 0; color: var(--accent);"><i class="fa-solid fa-van-shuttle"></i> Transport</h3>
+                            <ul style="font-size: 1.1rem;">
+                                <li><strong>Medium Bus:</strong> 19-25 seats with driver & AC.</li>
+                                <li>Keeps the group safely together. <br><span class="thai-text" style="margin-top: 5px;">แนะนำรถบัสขนาดกลาง 19-25 ที่นั่ง เดินทางพร้อมกัน ปลอดภัยสุด</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Emergency & Hospitals -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1200px;">
+                <h2 style="color: #ffb8b8;"><i class="fa-solid fa-truck-medical"></i> Emergency & Hospitals <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">เบอร์ฉุกเฉินและโรงพยาบาล</span></h2>
+                
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div>
+                        <h3 style="color: var(--accent); margin-bottom: 20px;"><i class="fa-solid fa-phone-volume"></i> Emergency Numbers</h3>
+                        
+                        <div class="emergency-number">
+                            <span class="label">General Emergency <span class="thai-text" style="display:inline">(ฉุกเฉินรวม)</span></span>
+                            <span class="number">112</span>
+                        </div>
+                        <div class="emergency-number">
+                            <span class="label">Police <span class="thai-text" style="display:inline">(ตำรวจ)</span></span>
+                            <span class="number">110</span>
+                        </div>
+                        <div class="emergency-number">
+                            <span class="label">Ambulance <span class="thai-text" style="display:inline">(รถพยาบาล)</span></span>
+                            <span class="number">118</span>
+                        </div>
+                        <div class="emergency-number" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.5);">
+                            <span class="label" style="color: #f1c40f;">Thai Consulate<br><span class="thai-text" style="display:inline; font-size: 0.8em;">(สถานกงสุลไทยในบาหลี)</span></span>
+                            <span class="number" style="color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); font-size: 1.8rem;">+62 361 263 310</span>
+                        </div>
+                    </div>
+                    <div style="padding-left: 20px;">
+                        <h3 style="color: var(--accent);"><i class="fa-solid fa-house-medical"></i> Top Private Hospitals</h3>
+                        <p style="margin-bottom: 20px; font-size: 1.05rem; line-height: 1.5;"><i class="fa-solid fa-triangle-exclamation" style="color:#f1c40f;"></i> International standard, ideal for tourists. <strong>Watch out for Bali Belly! Do not drink tap water.</strong> <span class="thai-text" style="display:inline">(ห้ามดื่มน้ำประปาเด็ดขาด ป้องกันอาหารเป็นพิษ)</span></p>
+                        <ul style="font-size: 1.15rem;">
+                            <li style="margin-bottom: 20px;"><strong>BIMC Hospital Kuta:</strong> <br><span class="thai-text" style="font-size: 0.9em; margin-top: 5px;">ใกล้สนามบินและ Canggu (มาตรฐานสากล)</span></li>
+                            <li style="margin-bottom: 20px;"><strong>Siloam Hospitals Denpasar:</strong> <br><span class="thai-text" style="font-size: 0.9em; margin-top: 5px;">โรงพยาบาลใหญ่ใจกลางเมือง เครื่องมือครบครัน</span></li>
+                            <li style="margin-bottom: 20px;"><strong>Kenak Medika:</strong> <br><span class="thai-text" style="font-size: 0.9em; margin-top: 5px;">แนะนำสำหรับผู้ที่พักในโซน Ubud</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Travel Insurance -->
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1502920514313-52581002a659?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+            <div class="glass-panel" style="max-width: 1200px;">
+                <h2 style="color: #4cd137;"><i class="fa-solid fa-shield-halved"></i> Travel Insurance <span class="thai-text" style="display:inline; margin-left: 15px; font-size: 0.5em;">เปรียบเทียบประกันการเดินทาง</span></h2>
+                <p style="text-align: center; margin-bottom: 20px;">Highly recommended to protect against flight delays and <strong>Bali Belly</strong> medical bills.</p>
+                
+                <div class="insurance-grid">
+                    <!-- SOMPO -->
+                    <div class="insurance-card">
+                        <div class="insurance-logo">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOZSbhXEAVezM3fKYuFfqeVQ0pBvj_qaCQzA&s" alt="SOMPO">
+                        </div>
+                        <h4>SOMPO</h4>
+                        <p>Excellent general coverage, great medical support, and famous for easy flight delay claims.</p>
+                        <span class="thai-text" style="margin-bottom: 15px; display: block;">เคลมง่าย ดูแลดี ครอบคลุมเที่ยวบินล่าช้า</span>
+                        <div class="emergency-pill"><i class="fa-solid fa-phone"></i> +66 2 205 7775</div>
+                        <div style="font-size: 0.8rem; color: #ccc; margin-top: 5px;">Sompo Assist 24/7</div>
+                    </div>
+                    
+                    <!-- CHUBB -->
+                    <div class="insurance-card">
+                        <div class="insurance-logo">
+                            <img src="https://logos-world.net/wp-content/uploads/2023/05/Chubb-Logo.jpg" alt="CHUBB">
+                        </div>
+                        <h4>CHUBB</h4>
+                        <p>Top-tier global network. Great for those doing water activities, surfing, or diving in Penida.</p>
+                        <span class="thai-text" style="margin-bottom: 15px; display: block;">เครือข่ายระดับโลก เหมาะกับสายลุย/ดำน้ำ</span>
+                        <div class="emergency-pill"><i class="fa-solid fa-phone"></i> +66 2 039 5000</div>
+                        <div style="font-size: 0.8rem; color: #ccc; margin-top: 5px;">Chubb Assistance</div>
+                    </div>
+                    
+                    <!-- MSIG -->
+                    <div class="insurance-card">
+                        <div class="insurance-logo">
+                            <img src="https://www.msig-thai.com/sites/msig_th_revamp/files/inline-images/msig_brand_new.jpg" alt="MSIG">
+                        </div>
+                        <h4>MSIG</h4>
+                        <p>Very popular choice for Bali trips. Excellent track record for covering food poisoning (Bali Belly).</p>
+                        <span class="thai-text" style="margin-bottom: 15px; display: block;">ยอดฮิตสำหรับบาหลี เคลมอาหารเป็นพิษง่ายมาก</span>
+                        <div class="emergency-pill"><i class="fa-solid fa-phone"></i> +66 2 314 9000</div>
+                        <div style="font-size: 0.8rem; color: #ccc; margin-top: 5px;">MSIG Assist 24/7</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+        <div class="slide-counter" id="counter">1 / 20</div>
+        <button id="nextBtn" onclick="nextSlide()">Next <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const counter = document.getElementById('counter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+            
+            counter.innerText = (currentSlide + 1) + " / " + totalSlides;
+            progressBar.style.width = ((currentSlide + 1) / totalSlides) * 100 + "%";
+            
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
